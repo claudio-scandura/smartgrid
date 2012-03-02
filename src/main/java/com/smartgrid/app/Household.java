@@ -9,9 +9,8 @@ public class Household {
 	private Double electricityPrice;
 	private HouseholdPolicy policy;
 	
-	public Household(Integer householdId, Double electricityPrice, HouseholdPolicy policy) {
+	public Household(Integer householdId, HouseholdPolicy policy) {
 		this.householdId = householdId;
-		this.electricityPrice = electricityPrice;
 		this.policy = policy;
 	}
 	

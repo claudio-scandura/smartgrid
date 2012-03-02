@@ -4,7 +4,7 @@
 package com.smartgrid.app;
 
 /**
- * @author claudioscandura
+ * @author Claudio Scandura (claudio.scandura@kcl.ac.uk)
  * 
  */
 public class Configuration {
@@ -16,7 +16,7 @@ public class Configuration {
 	public Configuration(String type, String target, String distributionFactor)
 			throws IllegalArgumentException {
 		super();
-		if (type.equalsIgnoreCase(Main.HOUSEHOLD_POLICY_TYPE_ID))
+		if (type.equalsIgnoreCase(SimulationLauncher.HOUSEHOLD_POLICY_TYPE_ID))
 			this.type = H_POLICY;
 		else
 			throw new IllegalArgumentException();
@@ -38,9 +38,9 @@ public class Configuration {
 	public Configuration(String type, String target)
 			throws IllegalArgumentException {
 		super();
-		if (type.equalsIgnoreCase(Main.AGGREGATOR_POLICY_TYPE_ID))
+		if (type.equalsIgnoreCase(SimulationLauncher.AGGREGATOR_POLICY_TYPE_ID))
 			this.type = A_POLICY;
-		else if (type.equalsIgnoreCase(Main.CUSTOM_CLASS_TYPE_ID))
+		else if (type.equalsIgnoreCase(SimulationLauncher.CUSTOM_CLASS_TYPE_ID))
 			this.type = C_OBJECT;
 		else
 			throw new IllegalArgumentException();
