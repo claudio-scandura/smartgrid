@@ -135,6 +135,7 @@ public class SimulationLauncher {
 		String err;
 		if ((err=checkPoliciesConfig(configurations))!=null) {
 			System.out.println("Error in the policy configuration: "+err);
+			System.exit(-1);
 		}
 		
 		
@@ -233,9 +234,9 @@ public class SimulationLauncher {
 		if (hPolicy==0)
 			return "There must be at least 1 household policy class!";
 		if (aPolicy!=1)
-			return "There must be at exactly 1 aggregator policy class!";
+			return "There must be exactly 1 aggregator policy class!";
 		if (sum!=100.0)
-			return "The sum of th polici distribution factors must be 100!";
+			return "The sum of th policy distribution factors must be 100!";
 		return null;
 	}
 
@@ -386,7 +387,7 @@ public class SimulationLauncher {
 	}
 
 	/**
-	 * Parses the configuration file defined by the user and creates a Setting object
+	 * Parses the configuration file defined by the user and creates a Settings object
 	 * 
 	 * @return A settings object
 	 * @throws ParseException If an error occurs during the parsing
