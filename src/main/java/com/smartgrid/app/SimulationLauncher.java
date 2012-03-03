@@ -162,7 +162,12 @@ public class SimulationLauncher {
 
 		//assign the custom objects, household and aggregator policies to their respective variables
 		splitClasses(classes, configurations);
-		
+		//check is the policies outnumber the households
+		if (householdPoliciesToLoad.size()>numOfHouseholds) {
+			System.out.println("Error: the number of household policies cannot exceed the total number of households!\nQuitting...");
+			System.exit(-1);
+		}
+			
 		//start testing
 		System.out
 				.println("Aggregator policy class: " + aggregatorPolicyToLoad);
