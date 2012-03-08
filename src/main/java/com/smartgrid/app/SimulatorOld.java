@@ -9,7 +9,7 @@ import java.util.Map;
  * @author Claudio Scandura (claudio.scandura@kcl.ac.uk)
  *
  */
-public class Simulator {
+public class SimulatorOld {
 	
 	public static int granularity;
 	private long iterations;
