@@ -1,8 +1,8 @@
-package com.smartgrid.app;
+package com.smartgrid.policies;
 
 import java.util.Date;
 import java.util.List;
-import com.smartgrid.app.Appliance;
+import com.smartgrid.policies.Appliance;
 import com.smartgrid.app.CustomMessage;
 
 public interface HouseholdPolicy {
@@ -10,7 +10,9 @@ public interface HouseholdPolicy {
 	
 	public String getPolicyAuthor();
 	
-	public String getPolicyVersion();
+	public String getPolicyName();
+	
+	public Double getPolicyVersion();
 	
 	public Double getElectricityDemand();
 	
@@ -20,5 +22,5 @@ public interface HouseholdPolicy {
 	
 	public Integer notifyPrice(Double newPrice);
 	
-	public CustomMessage handleMessage(CustomMessage m);
+	public CustomMessage handleMessage(CustomMessage m) throws Exception;
 }
