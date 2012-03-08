@@ -35,7 +35,8 @@ public class Simulator {
 		// store supply and notify households of initial price
 		aggregator.setElectricitySupply(aggregatorPolicy.getSupply());
 		aggregator.setElectricityPrice(aggregatorPolicy.getPrice());
-		
+		//retrieve list of appliances
+		aggregator.updateApplianceMap();
 		this.logger = logger;
 	}
 
@@ -44,7 +45,7 @@ public class Simulator {
 	private void tick(Date date) {
 		System.out.println("Broadcasting message to: "+Arrays.toString(messenger.memberIds()));
 		messenger.<Void,Date>messageMany(messenger.memberIds(), new Message<Date>("tick", date));
-		aggregator.updateApplianceMap();
+		//aggregator.updateApplianceMap();
 		Double overallDemand  = aggregator.updateHouseholdDemands(date);
 		
 		//logger.logAggregator(date, aggregator.getElectricitySupply(), overallDemand, aggregator.getElectricityPrice());

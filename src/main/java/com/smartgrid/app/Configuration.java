@@ -30,6 +30,8 @@ public class Configuration {
 		try {
 			this.distributionFactor = Double.parseDouble(distributionFactor
 					.substring(0, factorSize));
+			if (this.distributionFactor<0)
+				throw new IllegalArgumentException();
 		} catch (NumberFormatException nfe) {
 			throw new IllegalArgumentException();
 		}

@@ -277,14 +277,21 @@ public class SimulationLauncher {
 		customHouseholdPolicies = new ArrayList<HouseholdPolicy>();
 		Class<?> policyClass = null;
 		try {
+			int many=0;
 			policyClass = loader.loadClass(aggregatorPolicyToLoad);
 			AP=(AggregatorPolicy) policyClass.newInstance();
 			//System.out.println("Method invokation: "+AP.getString());
 			for (Map.Entry<String, Double> e : householdPoliciesToLoad.entrySet()) {
 				policyClass = loader.loadClass(e.getKey());
-				List<HouseholdPolicy> tmp=instantiateHouseholdPolicies(policyClass, e.getValue());
+				many=(int) ((numOfHouseholds*e.getValue())/100);
+				List<HouseholdPolicy> tmp=instantiateHouseholdPolicies(policyClass, many);
 				customHouseholdPolicies.addAll(tmp);
 			}
+			//check that all the needed policies have been created and add padding if needed
+			int diff;
+			if ((diff=numOfHouseholds-customHouseholdPolicies.size())>0)
+				while (diff--!=0) 
+					customHouseholdPolicies.add((HouseholdPolicy)policyClass.newInstance());
 		} catch (ClassNotFoundException cnfe) {
 			// TODO Auto-generated catch block
 			throw new Exception(cnfe);
@@ -310,12 +317,10 @@ public class SimulationLauncher {
 	 * @throws InstantiationException If an error occur during the allocation of an object
 	 * @throws IllegalAccessException If an error occur during the allocation of an object
 	 */
-	private static List<HouseholdPolicy> instantiateHouseholdPolicies(Class<?> cl, double distributionFactor) 
+	private static List<HouseholdPolicy> instantiateHouseholdPolicies(Class<?> cl, int many) 
 	throws InstantiationException, IllegalAccessException{
 		List<HouseholdPolicy> res = new ArrayList<HouseholdPolicy>();
-		//!!!!!Careful here, you risk to leave less policies than households
-		int numOfInstances = (int) ((numOfHouseholds*distributionFactor)/100);
-		for (int k=0; k< numOfInstances; k++)
+		for (int k=0; k< many; k++)
 			res.add((HouseholdPolicy) cl.newInstance());
 		return res;
 	}
