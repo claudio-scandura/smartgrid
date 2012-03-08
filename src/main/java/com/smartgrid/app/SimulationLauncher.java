@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+
 /**
  * @author Claudio Scandura (claudio.scandura@kcl.ac.uk)
  * 
@@ -60,27 +61,27 @@ public class SimulationLauncher {
 	/**
 	 * The simulation granularity in minutes. Each iteration will be equivalent to "simulationGranularity" minutes in the simulator
 	 */
-	static int simulationGranularity;
+	static Integer simulationGranularity=5;
 	
 	/**
 	 * The number of iterations that need to be executed 
 	 */
-	static long iterations;
+	static Long iterations=1L;
 	
 	/**
 	 * The number of households to be simulated
 	 */
-	static int numOfHouseholds;//=100;
+	static int numOfHouseholds=10;
 	
 	/**
 	 * The path to the .jar file where the user-defined classes are stored
 	 */
-	static String jarFilePath;// = "/Users/claudioscandura/Dropbox/KCL/Workspace/Java/ClassLoadingSample/testJar.jar";
+	static String jarFilePath = "CustomClasses.jar";
 	
 	/**
 	 * The path to the configuration file 
 	 */
-	static String configurationFilePath;// = "/Users/claudioscandura/Dropbox/KCL/Workspace/Java/Simulator/src/com/smartgrid/simulator/settings.cfg";
+	static String configurationFilePath = "settings.cfg";
 	
 	/**
 	 * The Java name (i.e java.lang.String) of the class that implements the AggregatorPolicy interface, defined in the .jar file
@@ -129,6 +130,7 @@ public class SimulationLauncher {
 			System.out.println("Something went wrong during the parsing of the configuration file: "+
 					configurationFilePath);
 			e.printStackTrace();
+			System.exit(-1);
 		}
 		
 		//Check policies settings
@@ -192,17 +194,21 @@ public class SimulationLauncher {
 		
 		//remove the folder where the jar file was extracted
 		deleteDir(new File(TMP_DIR));
-		
 		// check parameters and household distribution and finally create and
-		simulation=new Simulator(customHouseholdPolicies);
-		simulation.setIterations(iterations);
-		simulation.setAggregatorPolicy(AP); //AggregatorPolicy class missing...
-		Simulator.setGranularity(simulationGranularity);
-		simulation.setAggregator(new Aggregator(simulation.getHouseholdPolicies())); //ROB: see if you can define a constructor with a map<integer, household> parameter
-		
+		HashMap<Integer, Household> householdPolicies=new HashMap<Integer, Household>();
+		int i=0;
+		Logger log = new Logger("localhost", "smartgrid", "rob", "test123");
+		for (HouseholdPolicy hp: customHouseholdPolicies) 
+			householdPolicies.put(i++, new Household(i, hp));
+		simulation=new Simulator(householdPolicies,
+				iterations,
+				simulationGranularity,
+				AP, 
+				null);
+
 		// run simulation
 		try {
-			simulation.runSimulation();
+			simulation.run();
 		}
 		catch (RuntimeException re) {
 			System.out.println("Exception while running the simulation: "+re.getMessage()+"\nExecution will be aborted.");
@@ -418,8 +424,10 @@ public class SimulationLauncher {
 									tmpArr[2]));
 					}
 					catch (IllegalArgumentException iae) {
-						throw new ParseException("Bad configuration file!.."+iae.getMessage(),
+						ParseException pe = new ParseException("Bad configuration file!.."+iae.toString() ,
 								lineIndex);
+						pe.setStackTrace(iae.getStackTrace());
+						throw pe;
 					}
 				}
 			}

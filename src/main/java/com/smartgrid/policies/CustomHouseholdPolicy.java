@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.smartgrid.policies.Appliance;
 import com.smartgrid.policies.GenericAppliance;
+import com.smartgrid.app.Appliance;
 import com.smartgrid.app.CustomMessage;
+import com.smartgrid.app.HouseholdPolicy;
 
 public class CustomHouseholdPolicy implements HouseholdPolicy {
 

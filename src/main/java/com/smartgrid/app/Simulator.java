@@ -1,13 +1,12 @@
 package com.smartgrid.app;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Date;
 import com.smartgrid.app.Aggregator;
 import com.smartgrid.messenger.Message;
 import com.smartgrid.messenger.Messenger;
 import com.smartgrid.messenger.MessengerBasic;
-import com.smartgrid.policies.AggregatorPolicy;
-import com.smartgrid.policies.HouseholdPolicy;
 
 public class Simulator {
 	private Long tick = 0L; // current tick
@@ -43,20 +42,25 @@ public class Simulator {
 	// call tick on households and aggregator
 	// update list of demands
 	private void tick(Date date) {
+		System.out.println("Broadcasting message to: "+Arrays.toString(messenger.memberIds()));
 		messenger.<Void,Date>messageMany(messenger.memberIds(), new Message<Date>("tick", date));
 		aggregator.updateApplianceMap();
 		Double overallDemand  = aggregator.updateHouseholdDemands(date);
-		logger.logAggregator(date, aggregator.getElectricitySupply(), overallDemand, aggregator.getElectricityPrice());
+		
+		//logger.logAggregator(date, aggregator.getElectricitySupply(), overallDemand, aggregator.getElectricityPrice());
 		aggregatorPolicy.tick(date, aggregator);
 	}
 	
 	public void run() {
+		System.out.println("Starting simulation...");
 		currentTime = (new Date ()).getTime();
-
-		while (tick <= iterations) {
+		Date tmp = new Date();
+		while (tick < iterations) {
 			tick++;
+			System.out.println(tick);
 			currentTime += 1000L * granularity;
-			tick(new Date(currentTime));
+			tmp.setTime(currentTime);
+			tick(tmp);
 		}
 	}
 }

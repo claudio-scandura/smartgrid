@@ -44,7 +44,7 @@ public class Configuration {
 			this.type = C_OBJECT;
 		else
 			throw new IllegalArgumentException();
-		if (!target.matches("[A-Za-z]+"))
+		if (!target.matches("[A-Za-z0-9]+"))
 			throw new IllegalArgumentException();
 		this.target = target;
 	}

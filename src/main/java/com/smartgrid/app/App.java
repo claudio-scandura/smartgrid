@@ -2,10 +2,8 @@ package com.smartgrid.app;
 
 import com.smartgrid.app.Simulator;
 import com.smartgrid.app.Logger;
-import com.smartgrid.policies.AggregatorPolicy;
 import com.smartgrid.policies.CustomAggregatorPolicy;
 import com.smartgrid.policies.CustomHouseholdPolicy;
-import com.smartgrid.policies.HouseholdPolicy;
 
 import java.util.HashMap;
 

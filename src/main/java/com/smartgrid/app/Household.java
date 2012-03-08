@@ -1,6 +1,4 @@
 package com.smartgrid.app;
-import com.smartgrid.policies.Appliance;
-import com.smartgrid.policies.HouseholdPolicy;
 import java.util.Date;
 import java.util.List;
 
@@ -22,7 +20,7 @@ public class Household {
 	}
 	
 	public void tick(Date date) {
-		logMessage("tick");
+		//logMessage("tick");
 		policy.tick(date);
 	}
 	

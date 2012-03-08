@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.smartgrid.app.Aggregator;
+import com.smartgrid.app.AggregatorPolicy;
 
 public class CustomAggregatorPolicy implements AggregatorPolicy {
 

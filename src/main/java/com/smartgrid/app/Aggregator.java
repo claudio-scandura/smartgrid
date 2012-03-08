@@ -3,7 +3,6 @@ package com.smartgrid.app;
 import com.smartgrid.messenger.Message;
 import com.smartgrid.messenger.Messenger;
 import com.smartgrid.messenger.MessengerBasic;
-import com.smartgrid.policies.Appliance;
 import com.smartgrid.app.Household;
 
 import java.util.Date;
@@ -69,11 +68,19 @@ public class Aggregator {
     	for (Integer i: allHouseholdIds) {
     		total += householdDemandMap.get(i);
     		// TODO some how fetch number of appliances
-    		Integer appliances = applianceMap.get(i).size();
-    		logger.logHouseholdDemand(i, date, householdDemandMap.get(i), 3);
+    		Integer appliances = getTurnedOnApplianceNumber(i);
+    		if (logger!=null)
+    			logger.logHouseholdDemand(i, date, householdDemandMap.get(i), appliances);
     	}
     	
     	return total;
+	}
+	
+	private int getTurnedOnApplianceNumber(Integer householdID) {
+		int k=0;
+		for (Appliance a: applianceMap.get(householdID))
+			if (a.getStatus()) k++;
+		return k;
 	}
 
    //Sends a message to the household requesting an appliance to be turned off. 
