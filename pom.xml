@@ -19,6 +19,11 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+     <dependency>
+      <groupId>JSAP</groupId>
+      <artifactId>JSAP</artifactId>
+      <version>5.1.18</version>
+    </dependency>
   </dependencies>
 
   <build>
