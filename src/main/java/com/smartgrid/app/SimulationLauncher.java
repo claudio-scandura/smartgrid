@@ -14,10 +14,16 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import com.martiansoftware.jsap.FlaggedOption;
+import com.martiansoftware.jsap.JSAP;
+import com.martiansoftware.jsap.JSAPException;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.Switch;
 
 
 /**
@@ -27,7 +33,16 @@ import java.util.jar.JarFile;
  * 
  */
 public class SimulationLauncher {
+	
+	static String help="\nUSAGE:\n\tJava -jar SimulationLauncher -iterations -granularity -households -policies -config"+
+			" \n\nPARAMETERS:\n\t -i | --iterations - The number of iterations to execute\n"+
+			"\n\t -g | --granularity - The time granularity in minutes. Each iteration will simulate 'granularity' minutes\n"+
+			"\n\t -h | --households - The number of households to simulate\n"+
+			"\n\t -p | --policies - The path to the .jar file containing the user-defined policies and objects\n"+
+			"\n\t -c | --config - The path to the configuration file\n"+
+			"\n\t --help - Print this manual\n";
 
+	static boolean helpRequested=false;
 	/**
 	 * The name to be written in the configuration file to define a household policy
 	 */
@@ -61,32 +76,32 @@ public class SimulationLauncher {
 	/**
 	 * The simulation granularity in minutes. Each iteration will be equivalent to "simulationGranularity" minutes in the simulator
 	 */
-	static Integer simulationGranularity=5;
+	static Integer simulationGranularity;
 	
 	/**
 	 * The number of iterations that need to be executed 
 	 */
-	static Long iterations=1L;
+	static Long iterations;
 	
 	/**
 	 * The number of households to be simulated
 	 */
-	static int numOfHouseholds=10;
+	static int numOfHouseholds;
 	
 	/**
 	 * The path to the .jar file where the user-defined classes are stored
 	 */
-	static String jarFilePath = "CustomClasses.jar";
+	static String jarFilePath;
 	
 	/**
 	 * The path to the configuration file 
 	 */
-	static String configurationFilePath = "settings.cfg";
+	static String configurationFilePath;
 	
 	/**
 	 * The Java name (i.e java.lang.String) of the class that implements the AggregatorPolicy interface, defined in the .jar file
 	 */
-	static String aggregatorPolicyToLoad = "";
+	static String aggregatorPolicyToLoad;
 	
 	/**
 	 * The list of Java names (i.e java.lang.String) of the custom classes that the user defined in the .jar file
@@ -108,7 +123,7 @@ public class SimulationLauncher {
 	/**
 	 * The aggregator policy object loaded from the class defined in the .jar file.
 	 */
-	static AggregatorPolicy AP; //wee need the AggregatorPolicy class here
+	static AggregatorPolicy AP; 
 
 	/**
 	 * Reads the command line arguments and check their consistency. Then loads and allocates, according
@@ -120,7 +135,28 @@ public class SimulationLauncher {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		// get parameters..
-		setParameters(args);
+		if (args.length==0) {
+			System.out.println(SimulationLauncher.help);
+			System.exit(0);
+		}
+		String error="";
+		
+		try {
+			error=setParameters(args);
+		} catch (JSAPException e3) {
+			// TODO Auto-generated catch block
+			System.out.println("Exception during argument parsing");
+			e3.printStackTrace();
+			System.exit(-1);
+		}
+		if (error!=null) {
+			System.out.println("Bad parameters: "+error);
+			System.exit(-1);
+		}
+		if (helpRequested) {
+			System.out.println(SimulationLauncher.help);
+			System.exit(0);
+		}
 		// parse configuration file and brief check against the configurations
 		Settings configurations = null;
 		try {
@@ -142,10 +178,10 @@ public class SimulationLauncher {
 		
 		
 		//start testing
-		for (Configuration c : configurations.getMap().values())
+		/*for (Configuration c : configurations.getMap().values())
 			System.out.println("Type: " + c.getType() + ", Target: "
 					+ c.getTarget() + ", Distribution factor: "
-					+ c.getDistributionFactor() + "%");
+					+ c.getDistributionFactor() + "%");*/
 		//end testing
 
 		// extract jar and load classes
@@ -154,31 +190,34 @@ public class SimulationLauncher {
 			classes = unpackJar();
 		} catch (IOException e2) {
 			// TODO Auto-generated catch block
-			System.out.println("Error while extracting the jar archive");
+			System.out.println("Error while extracting the jar archive:");
 			e2.printStackTrace();
 		}
 		
 		//start testing
-		for (String s : classes)
-			System.out.println(s);
+		/*for (String s : classes)
+			System.out.println(s);*/
 		//end testing
 
 		//assign the custom objects, household and aggregator policies to their respective variables
-		splitClasses(classes, configurations);
+		if ((error=splitClasses(classes, configurations))!=null) {
+			System.out.println("Error: "+error);
+			System.exit(-1);
+		}
 		//check is the policies outnumber the households
 		if (householdPoliciesToLoad.size()>numOfHouseholds) {
-			System.out.println("Error: the number of household policies cannot exceed the total number of households!\nQuitting...");
+			System.out.println("Error: the number of household policies cannot exceed the total number of households");
 			System.exit(-1);
 		}
 			
 		//start testing
-		System.out
+		/*System.out
 				.println("Aggregator policy class: " + aggregatorPolicyToLoad);
 		for (String s : customClassesToLoad)
 			System.out.println("Custom class: " + s);
 		for (Map.Entry<String, Double> e : householdPoliciesToLoad.entrySet())
 			System.out.println("Household Policy: " + e.getKey()
-					+ ", distribution: " + e.getValue());
+					+ ", distribution: " + e.getValue());*/
 		//end testing
 
 		try {
@@ -246,7 +285,7 @@ public class SimulationLauncher {
 		return null;
 	}
 
-	/**ROB
+	/**
 	 * 
 	 * Parses the arguments line and read the options with their respective parameters.
 	 * This methods sets the static variables of this class so that the configuration file can be
@@ -256,9 +295,63 @@ public class SimulationLauncher {
 	 * @throws IllegalArgumentException
 	 *  If the line contains inconsistent data (wrong option or parameter). The Exception should contain a brief description of what the error is.
 	 */
-	private static void setParameters(String []args) throws IllegalArgumentException {
+	@SuppressWarnings("unchecked")
+	private static String setParameters(String []args) throws JSAPException {
 		// TODO Auto-generated method stub
-		
+		JSAP parser = new JSAP();
+		parser.registerParameter(new Switch("help",
+				JSAP.NO_SHORTFLAG,
+				"help"));
+		parser.registerParameter(new FlaggedOption("granularity", 
+				JSAP.INTEGER_PARSER,
+				JSAP.NO_DEFAULT,
+				JSAP.REQUIRED,
+				'g',
+				"granularity"));
+		parser.registerParameter(new FlaggedOption("iterations", 
+				JSAP.LONG_PARSER,
+				JSAP.NO_DEFAULT,
+				JSAP.REQUIRED,
+				'i',
+				"iterations"));
+		parser.registerParameter(new FlaggedOption("households", 
+				JSAP.INTEGER_PARSER,
+				JSAP.NO_DEFAULT,
+				JSAP.REQUIRED,
+				'h',
+				"households"));
+		parser.registerParameter(new FlaggedOption("policies", 
+				JSAP.STRING_PARSER,
+				JSAP.NO_DEFAULT,
+				JSAP.REQUIRED,
+				'p',
+				"policies"));
+		parser.registerParameter(new FlaggedOption("config", 
+				JSAP.STRING_PARSER,
+				JSAP.NO_DEFAULT,
+				JSAP.REQUIRED,
+				'c',
+				"config"));
+		JSAPResult res= parser.parse(args);
+		if (!res.success()) {
+			String error="";
+			Iterator<String> i = res.getErrorMessageIterator();
+			while (i.hasNext()) error+=i.next()+"\n";
+			return error;
+		}
+		if (res.userSpecified("help"))
+			helpRequested=true;
+		else {
+			if ((SimulationLauncher.simulationGranularity=res.getInt("granularity"))<=0)
+				return "The time granularity must be greater than 0";
+			if ((SimulationLauncher.iterations=res.getLong("iterations"))<=0)
+				return "The number of iterations must be greater than 0";
+			if ((SimulationLauncher.numOfHouseholds=res.getInt("households"))<=0)
+				return "The number of households must be greater than 0";
+			SimulationLauncher.jarFilePath=res.getString("policies");
+			SimulationLauncher.configurationFilePath=res.getString("config");
+		}
+		return null;
 	}
 
 	/**
@@ -278,9 +371,10 @@ public class SimulationLauncher {
 		Class<?> policyClass = null;
 		try {
 			int many=0;
+			for (String s: customClassesToLoad)
+				loader.loadClass(s);
 			policyClass = loader.loadClass(aggregatorPolicyToLoad);
 			AP=(AggregatorPolicy) policyClass.newInstance();
-			//System.out.println("Method invokation: "+AP.getString());
 			for (Map.Entry<String, Double> e : householdPoliciesToLoad.entrySet()) {
 				policyClass = loader.loadClass(e.getKey());
 				many=(int) ((numOfHouseholds*e.getValue())/100);
@@ -288,10 +382,9 @@ public class SimulationLauncher {
 				customHouseholdPolicies.addAll(tmp);
 			}
 			//check that all the needed policies have been created and add padding if needed
-			int diff;
-			if ((diff=numOfHouseholds-customHouseholdPolicies.size())>0)
-				while (diff--!=0) 
-					customHouseholdPolicies.add((HouseholdPolicy)policyClass.newInstance());
+			int diff=numOfHouseholds-customHouseholdPolicies.size();
+			while (diff-->0) 
+				customHouseholdPolicies.add((HouseholdPolicy)policyClass.newInstance());
 		} catch (ClassNotFoundException cnfe) {
 			// TODO Auto-generated catch block
 			throw new Exception(cnfe);
@@ -301,10 +394,6 @@ public class SimulationLauncher {
 		} catch (IllegalAccessException iae) {
 			throw new Exception(iae);
 		}
-		//for testing
-		for (HouseholdPolicy p: customHouseholdPolicies)
-			System.out.println("Class: "+p.getClass()+" Method invokation: "+ p.getPolicyAuthor());
-		//end testing
 	}
 	
 	/**
@@ -329,10 +418,13 @@ public class SimulationLauncher {
 	 * Splits the given list and assigns the partitions to the static variables that hold the names for the
 	 * household policies, aggregator policy and custom object classes
 	 * 
+	 * @return a string containing a description of the error if it fails
+	 * @return null if it succeeds
+	 * 
 	 * @param classes The list containing the path of the classes
 	 * @param configurations The settings specified by the user into the configuration file
 	 */
-	private static void splitClasses(List<String> classes,
+	private static String splitClasses(List<String> classes,
 			Settings configurations) {
 		for (String s : classes) {
 			int indexOfSeparator;
@@ -353,7 +445,10 @@ public class SimulationLauncher {
 					customClassesToLoad.add(s.replace(File.separatorChar, '.')
 							.substring(0, s.length() - 6));
 			}
+			else
+				return "Could not find the class \'"+fileName+"\' in the configuration file";
 		}
+		return null;
 	}
 
 	/**

@@ -14,7 +14,7 @@ public class Simulator {
 	private Long startTime; // start time epoch (in milliseconds)
 	private Long currentTime; // end time epoch (in milliseconds)
 	private Messenger<Household> messenger;
-	private Integer granularity; // seconds per tick
+	public static Integer granularity; // seconds per tick
 	private AggregatorPolicy aggregatorPolicy;
 	private Aggregator aggregator;
 	private Logger logger;
@@ -26,7 +26,7 @@ public class Simulator {
 			Logger logger
 			) {
 		this.iterations  = iterations;
-		this.granularity = granularity;
+		Simulator.granularity = granularity;
 		this.aggregatorPolicy = aggregatorPolicy;
 		
 		messenger = new MessengerBasic<Household>(households);

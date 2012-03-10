@@ -19,9 +19,9 @@ public class Configuration {
 		if (type.equalsIgnoreCase(SimulationLauncher.HOUSEHOLD_POLICY_TYPE_ID))
 			this.type = H_POLICY;
 		else
-			throw new IllegalArgumentException();
-		if (!target.matches("[A-Za-z]+"))
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Wrong element type");
+		if (!target.matches("[A-Za-z0-9]+"))
+			throw new IllegalArgumentException("Bad class name");
 		this.target = target;
 		int factorSize;
 		if (distributionFactor
@@ -30,10 +30,10 @@ public class Configuration {
 		try {
 			this.distributionFactor = Double.parseDouble(distributionFactor
 					.substring(0, factorSize));
-			if (this.distributionFactor<0)
-				throw new IllegalArgumentException();
+			if (this.distributionFactor<0 || this.distributionFactor>100)
+				throw new IllegalArgumentException("The distribution factor must be in the range [0, 100]");
 		} catch (NumberFormatException nfe) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Cannot parse distributio factor");
 		}
 	}
 
@@ -47,7 +47,7 @@ public class Configuration {
 		else
 			throw new IllegalArgumentException();
 		if (!target.matches("[A-Za-z0-9]+"))
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Bad class name");
 		this.target = target;
 	}
 

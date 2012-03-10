@@ -5,7 +5,7 @@ public interface Appliance {
 
 	public String getName();
 	
-	public Integer getId();
+	public String getId();
 	
 	/**
 	 * Get the status of the appliance
@@ -13,5 +13,5 @@ public interface Appliance {
 	 * @return true if the appliance is on
 	 * @return false if the appliance is off
 	 */
-	public boolean getStatus();
+	public boolean getState();
 }
