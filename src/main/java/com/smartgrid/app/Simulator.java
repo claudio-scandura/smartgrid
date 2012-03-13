@@ -14,7 +14,7 @@ public class Simulator {
 	private Long startTime; // start time epoch (in milliseconds)
 	private Long currentTime; // end time epoch (in milliseconds)
 	private Messenger<Household> messenger;
-	public static Integer granularity; // seconds per tick
+	private  Integer granularity; // seconds per tick
 	private AggregatorPolicy aggregatorPolicy;
 	private Aggregator aggregator;
 	private Logger logger;
@@ -26,7 +26,7 @@ public class Simulator {
 			Logger logger
 			) {
 		this.iterations  = iterations;
-		Simulator.granularity = granularity;
+		this.granularity = granularity;
 		this.aggregatorPolicy = aggregatorPolicy;
 		
 		messenger = new MessengerBasic<Household>(households);
@@ -40,6 +40,7 @@ public class Simulator {
 		this.logger = logger;
 	}
 
+	
 	// call tick on households and aggregator
 	// update list of demands
 	private void tick(Date date) {
@@ -48,18 +49,18 @@ public class Simulator {
 		//aggregator.updateApplianceMap();
 		Double overallDemand  = aggregator.updateHouseholdDemands(date);
 		
-		//logger.logAggregator(date, aggregator.getElectricitySupply(), overallDemand, aggregator.getElectricityPrice());
+		logger.logAggregator(date, aggregator.getElectricitySupply(), overallDemand, aggregator.getElectricityPrice());
 		aggregatorPolicy.tick(date, aggregator);
 	}
 	
-	public void run() {
+	public void run() throws Exception {
 		System.out.println("Starting simulation...");
 		currentTime = (new Date ()).getTime();
 		Date tmp = new Date();
 		while (tick < iterations) {
 			tick++;
 			System.out.println(tick);
-			currentTime += 1000L * granularity;
+			currentTime += 1000L * granularity*60;
 			tmp.setTime(currentTime);
 			tick(tmp);
 		}
