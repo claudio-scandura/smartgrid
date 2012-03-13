@@ -236,25 +236,73 @@ public class SimulationLauncher {
 		// check parameters and household distribution and finally create and
 		HashMap<Integer, Household> householdPolicies=new HashMap<Integer, Household>();
 		int i=0;
-		Logger log = new Logger("localhost", "smartgrid", "rob", "test123");
 		for (HouseholdPolicy hp: customHouseholdPolicies) 
-			householdPolicies.put(i++, new Household(i, hp));
+			householdPolicies.put(i, new Household(i++, hp));
+		Logger log = new Logger("localhost", "smartgrid", "smartgrid", "smartgrid");
+		if (!initLogger(log, householdPolicies)) {
+			System.out.println("Error while initializing the database. Aborting..");
+			System.exit(-1);
+		}
 		simulation=new Simulator(householdPolicies,
 				iterations,
 				simulationGranularity,
 				AP, 
-				null);
+				log);
 
 		// run simulation
 		try {
 			simulation.run();
 		}
-		catch (RuntimeException re) {
+		catch (Exception re) {
 			System.out.println("Exception while running the simulation: "+re.getMessage()+"\nExecution will be aborted.");
 			re.printStackTrace();
 			System.exit(-1);
 		}
 		return;
+	}
+	
+	/**
+	 * Initializes the logger
+	 * 
+	 * @param l The logger
+	 * @param hs 
+	 * @return
+	 */
+	private static boolean initLogger(Logger l, Map<Integer, Household> hs) {
+		if (!l.open())
+			return false;
+		HouseholdPolicy hp;
+		for (String s: householdPoliciesToLoad.keySet()) {
+			if (null!=(hp =getIndexOf(customHouseholdPolicies, s))) 
+				if (!l.logHouseholdPolicy(hp.getPolicyAuthor(),
+						hp.getPolicyName(), hp.getPolicyVersion()))
+					return false;
+		}
+		if (!l.logAggregatorPolicy(AP.getPolicyAuthor(), AP.getPolicyName(), AP.getPolicyVersion()))
+			return false;
+		if (!l.logRun())
+			return false;
+		for (Map.Entry<Integer, Household> e: hs.entrySet())
+			if (!l.logRunHouseholdConnection((long)e.getKey(), e.getValue().getPolicy().getPolicyAuthor(),
+					e.getValue().getPolicy().getPolicyName(), e.getValue().getPolicy().getPolicyVersion()))
+				return false;
+		return true;
+	}
+	
+	/**
+	 * Get a HouseholdPolicy object from a list household policies
+	 * 
+	 * @param l The list of policies objects
+	 * @param s The java class name of the household policy
+	 * 
+	 * @return The HouseholdPolicy object if found
+	 * @return null otherwise
+	 */
+	private static HouseholdPolicy getIndexOf(List<HouseholdPolicy> l, String s) {
+		for (HouseholdPolicy hp: l)
+			if (hp.getClass().getCanonicalName().equals(s))
+				return hp;
+		return null;
 	}
 
 	/**
